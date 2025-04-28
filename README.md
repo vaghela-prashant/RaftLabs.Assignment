@@ -1,5 +1,5 @@
 # RaftLabs User Fetcher 🚀
-
+A video walkthrough : https://www.loom.com/share/1a961bcd969d4d91b62d3c1e71462dfa?sid=cb166205-9240-43a9-8bbb-d6e34a56f173
 This is a .NET 9 console application that interacts with an external API to fetch user data. It provides functionality to retrieve a user by ID or fetch all users by page. The application is designed with extensibility and caching in mind.
 
 ## Features
