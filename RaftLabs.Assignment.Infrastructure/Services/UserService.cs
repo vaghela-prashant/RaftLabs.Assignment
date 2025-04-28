@@ -63,7 +63,7 @@ namespace RaftLabs.Assignment.Infrastructure.Services
             });
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync(int pageNo)
         {
             string cacheKey = "AllUsers";
 
@@ -73,12 +73,11 @@ namespace RaftLabs.Assignment.Infrastructure.Services
             }
 
             var allUsers = new List<UserDto>();
-            int page = 1;
 
             while (true)
             {
                 var response = await _retryPolicy.ExecuteAsync(async () =>
-                    await _httpClient.GetAsync($"{_options.BaseUrl}/users?page={page}")
+                    await _httpClient.GetAsync($"{_options.BaseUrl}/users?page={pageNo}")
                 );
 
                 if (!response.IsSuccessStatusCode)
@@ -87,17 +86,18 @@ namespace RaftLabs.Assignment.Infrastructure.Services
                 }
 
                 var content = await response.Content.ReadAsStringAsync();
-                var pageData = System.Text.Json.JsonSerializer.Deserialize<PagedUserResponseDto>(content);
+                //var pageData = System.Text.Json.JsonSerializer.Deserialize<PagedUserResponseDto>(content);
+                var pageData = JsonConvert.DeserializeObject<PagedUserResponseDto>(content);
 
                 if (pageData?.Data == null || !pageData.Data.Any())
                     break;
 
                 allUsers.AddRange(pageData.Data);
 
-                if (page >= pageData.TotalPages)
+                if (pageNo >= pageData.TotalPages)
                     break;
 
-                page++;
+                pageNo++;
             }
 
             _cache.Set(cacheKey, allUsers, TimeSpan.FromMinutes(10));
